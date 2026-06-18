@@ -512,7 +512,7 @@ button {
 
 .lifecycle {
   position: relative;
-  min-height: 680px;   /* était 520px — plus de hauteur pour séparer les deux tracks */
+  min-height: 750px;   /* hauteur augmentée pour laisser la flèche passer */
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -568,9 +568,9 @@ button {
   position: absolute;
   top: 80px;
   left: 28px;
-  right: 28px;
+  right: 160px;
   display: grid;
-  /* 4 phases + 4 gates (gate after each phase incl. handover transition) */
+  /* 4 phases + 4 gates — right réduit pour laisser passer la flèche */
   grid-template-columns: 1fr 52px 1fr 52px 1fr 52px 1fr 52px;
   gap: 0;
   align-items: stretch;
@@ -751,9 +751,9 @@ button {
   position: absolute;
   bottom: -35px;
   left: 28px;
-  right: 28px;
+  right: 160px;
   display: grid;
-  /* 4 real phases + 3 gates between them */
+  /* 4 real phases + 3 gates — right réduit comme bid-track */
   grid-template-columns: 1fr 52px 52px 1fr 52px 52px 52px 1fr 52px 52px 1fr;
   gap: 0;
   align-items: stretch;
@@ -831,29 +831,31 @@ button {
 
 .handover-loop {
   position: absolute;
-  top: 142px;
-  right: 92px;
-  width: 270px;
-  height: 245px;
-  border: 46px solid var(--orange);
-  border-left-color: transparent;
-  border-radius: 50%;
-  transform: rotate(18deg);
-  z-index: 1;
-  opacity: .95;
+  /* Aligner horizontalement sur la dernière colonne du bid-track.
+     Le bid-track a 8 colonnes (4 phases + 4 gates) en grid.
+     Handover est la 7e colonne (index 6, 0-based).
+     On positionne la ligne à right: 28px + 52px (dernière gate) = ~80px du bord droit. */
+  right: 80px;
+  top: 170px;       /* bas du bid-track (top 80 + margin 30 + hauteur ~60px) */
+  width: 6px;
+  height: calc(100% - 170px - 210px); /* espace entre bid-track bas et real-backing haut */
+  background: var(--orange);
+  border-radius: 3px;
+  z-index: 2;
 }
 
+/* Flèche vers le bas au bout de la ligne */
 .handover-loop::after {
   content: "";
   position: absolute;
-  right: 12px;
-  bottom: -53px;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 62px solid transparent;
-  border-right: 22px solid transparent;
-  border-top: 72px solid var(--orange);
-  transform: rotate(-20deg);
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 14px solid var(--orange);
 }
 
 /* ─── Real-track backing strip ─── */
@@ -861,11 +863,11 @@ button {
 .real-backing {
   position: absolute;
   left: 0;
-  right: 200px;
+  right: 0;
   bottom: 210px;
   height: 60px;
-  background: var(--sand);
-  border-radius: 0 54px 54px 0;
+  background: transparent; /* dessiné en SVG */
+  border-radius: 0;  /* plat des deux côtés, il touche les bords */
   z-index: 1;
 }
 
