@@ -266,7 +266,7 @@ function renderHandoverConnector() {
     const fArrow = document.createElementNS(NS, "polygon");
     fArrow.setAttribute("points", [
       `${Q3x},${dropY + fLen}`,             // pointe vers le bas
-      `${Q3x - fHalf},${dropY }`,        // coin gauche
+      `${Q3x - fHalf},${dropY}`,        // coin gauche
       `${Q3x + fHalf},${dropY}`,        // coin droit
     ].join(" "));
     fArrow.setAttribute("fill", "var(--sand)");
