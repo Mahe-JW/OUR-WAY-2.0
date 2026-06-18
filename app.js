@@ -26,12 +26,10 @@ function makeGateButton(gate) {
   const isRealGate = gate.stream === "real";
   wrapper.className = `gate-wrapper ${isRealGate ? "gate-wrapper--real" : "gate-wrapper--bid"}`;
 
-  // Badge au-dessus du bouton
   const badge = document.createElement("span");
   badge.className = gate.badge === "Internal" ? "gate-node-badge" : "gate-node-badge2";
   badge.textContent = gate.badge;
 
-  // Bouton contenant uniquement le symbole
   const btn = document.createElement("button");
   btn.type      = "button";
   btn.className = isRealGate ? "gate-node2" : "gate-node";
@@ -39,7 +37,6 @@ function makeGateButton(gate) {
   btn.innerHTML = `<span class="gate-node-symbol">${gate.symbol}</span>`;
   btn.addEventListener("click", () => window.open(gate.link, "_blank"));
 
-  // Titre en dessous du bouton
   const title = document.createElement("p");
   if (gate.title == "Kick Off Meetings" || gate.title == "Project Reviews" || gate.title == "Closure Meetings") {
     title.className   = "gate-node-title2";
@@ -64,7 +61,6 @@ function renderPhaseTracks() {
   bidTrack.innerHTML  = "";
   realTrack.innerHTML = "";
 
-  // BID phases (stream === "bid"), interleaved with gates
   const bidPhases = phases.filter(p => p.stream === "bid");
   bidPhases.forEach(phase => {
     const wrapper = document.createElement("div");
@@ -87,15 +83,13 @@ function renderPhaseTracks() {
 
     wrapper.appendChild(node);
     wrapper.appendChild(note);
-    bidTrack.appendChild(wrapper);  // (ou realTrack)
+    bidTrack.appendChild(wrapper);
 
-    // Insert gates that come after this phase
     gatesAfter(phase.id).filter(g => !g.stream || g.stream === "transition").forEach(gate => {
       bidTrack.appendChild(makeGateButton(gate));
     });
   });
 
-  // REAL phases (stream === "real"), interleaved with gates
   const realPhases = phases.filter(p => p.stream === "real");
   realPhases.forEach(phase => {
     const wrapper = document.createElement("div");
@@ -118,12 +112,167 @@ function renderPhaseTracks() {
 
     wrapper.appendChild(node);
     wrapper.appendChild(note);
-    realTrack.appendChild(wrapper);  // (ou realTrack)
+    realTrack.appendChild(wrapper);
 
-    // Insert gates that come after this phase (real stream)
     gatesAfter(phase.id).filter(g => g.stream === "real").forEach(gate => {
       realTrack.appendChild(makeGateButton(gate));
     });
+  });
+}
+
+// ─── Render: grande courbe orange + bande sable avec virage vers Initialisation ──
+
+function renderHandoverConnector() {
+  ["handoverConnector", "realBackingSvg"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  });
+
+  const lifecycle    = document.querySelector(".lifecycle");
+  const realBacking  = document.querySelector(".real-backing");
+  const handoverGate = bidTrack.lastElementChild;
+  const initPhase    = realTrack.firstElementChild;
+
+  if (!handoverGate || !realBacking || !lifecycle || !initPhase) return;
+
+  requestAnimationFrame(() => {
+    lifecycle.style.overflow = "visible";
+
+    const lcRect   = lifecycle.getBoundingClientRect();
+    const hgRect   = handoverGate.getBoundingClientRect();
+    const rbRect   = realBacking.getBoundingClientRect();
+    const initRect = initPhase.getBoundingClientRect();
+
+    const NS = "http://www.w3.org/2000/svg";
+
+    // ════════════════════════════════════════════════
+    // SVG 1 — Grande courbe orange Handover → real-backing
+    // ════════════════════════════════════════════════
+    const strokeW = 60;
+    const r       = strokeW / 2;
+
+    const Ax = hgRect.right - lcRect.left;
+    const Ay = hgRect.top + hgRect.height / 3 - lcRect.top - 18;
+
+    const Dx = rbRect.left - lcRect.left + 500;
+    const Dy = rbRect.top + rbRect.height / 2 - lcRect.top;
+
+    const Bx = Math.max(Ax, Dx) + 90;
+    const By = Ay;
+    const Cx = Bx;
+    const Cy = Dy;
+
+    const curvePath =
+      `M ${Ax} ${Ay}` +
+      ` L ${Bx - r} ${By}` +
+      ` Q ${Bx} ${By} ${Bx} ${By + r}` +
+      ` L ${Cx} ${Cy - r}` +
+      ` Q ${Cx} ${Cy} ${Cx - r} ${Cy}` +
+      ` L ${Dx} ${Dy}`;
+
+    const svg1 = document.createElementNS(NS, "svg");
+    svg1.id = "handoverConnector";
+    Object.assign(svg1.style, {
+      position: "absolute", left: "0", top: "0",
+      width: "100%", height: "100%",
+      overflow: "visible", pointerEvents: "none", zIndex: "2",
+    });
+
+    const pathEl = document.createElementNS(NS, "path");
+    pathEl.setAttribute("d",               curvePath);
+    pathEl.setAttribute("fill",            "none");
+    pathEl.setAttribute("stroke",          "var(--orange)");
+    pathEl.setAttribute("stroke-width",    strokeW);
+    pathEl.setAttribute("stroke-linecap",  "butt");
+    pathEl.setAttribute("stroke-linejoin", "round");
+    svg1.appendChild(pathEl);
+
+    // Flèche orange au point D (pointe vers la gauche)
+    const arrowHalf = strokeW * 0.7;
+    const arrowTip1 = document.createElementNS(NS, "polygon");
+    arrowTip1.setAttribute("points", [
+      `${Dx - 28},${Dy}`,
+      `${Dx + 4},${Dy - arrowHalf}`,
+      `${Dx + 4},${Dy + arrowHalf}`,
+    ].join(" "));
+    arrowTip1.setAttribute("fill", "var(--orange)");
+    svg1.appendChild(arrowTip1);
+
+    lifecycle.appendChild(svg1);
+
+    // ════════════════════════════════════════════════
+    // SVG 2 — Bande sable + virage + flèche vers Initialisation
+    // ════════════════════════════════════════════════
+    //
+    // La bande part du point D (fin de la courbe orange),
+    // va vers la gauche jusqu'au bord GAUCHE de la phase Initialisation,
+    // puis descend légèrement (virage arrondi) et pointe vers la phase.
+    //
+    // Points :
+    //   P  = D (départ, bord droit de la bande)
+    //   Q1 = bord gauche d'Initialisation, même Y que D  → fin du segment horizontal
+    //   Q2 = virage arrondi vers le bas
+    //   Q3 = pointe de la flèche (centre vertical d'Initialisation)
+
+    const bandH   = strokeW * 0.85;   // épaisseur bande sable
+    const bandR   = bandH * 0.7;      // rayon du virage
+
+    // X du bord gauche de la phase Initialisation (node button, pas le wrapper)
+    const initNode = initPhase.querySelector(".phase-node") || initPhase.firstElementChild;
+    const initNodeRect = initNode ? initNode.getBoundingClientRect() : initRect;
+
+    const Px  = Dx + 10;                           // départ bande (légèrement après D)
+    const Py  = Dy;                                // même Y que la courbe orange
+    const Q1x = initNodeRect.left - lcRect.left + bandR + 10; // fin horizontale
+    const Q1y = Py;
+    // centre du virage
+    const Q2x = initNodeRect.left - lcRect.left + 10;
+    const Q2y = Py;
+    // arrivée du virage (début descente)
+    const Q3x = Q2x;
+    const Q3y = initNodeRect.top + initNodeRect.height / 2 -10; // centre vertical d'Init
+
+    // Descente après le virage : on va un peu plus bas pour montrer le virage
+    const dropY = Q3y; // centre vertical de la phase Initialisation
+
+    // Path de la bande sable :
+    // horizontal P → Q1, virage arrondi Q1 → Q2 → bas, descend jusqu'à dropY
+    const bandPath =
+      `M ${Px} ${Py}` +
+      ` L ${Q1x} ${Q1y}` +
+      ` Q ${Q2x} ${Q2y} ${Q2x} ${Q2y + bandR}` +
+      ` L ${Q3x} ${dropY}`;
+
+    const svg2 = document.createElementNS(NS, "svg");
+    svg2.id = "realBackingSvg";
+    Object.assign(svg2.style, {
+      position: "absolute", left: "0", top: "0",
+      width: "100%", height: "100%",
+      overflow: "visible", pointerEvents: "none", zIndex: "1",
+    });
+
+    const bandEl = document.createElementNS(NS, "path");
+    bandEl.setAttribute("d",               bandPath);
+    bandEl.setAttribute("fill",            "none");
+    bandEl.setAttribute("stroke",          "var(--sand)");
+    bandEl.setAttribute("stroke-width",    bandH);
+    bandEl.setAttribute("stroke-linecap",  "butt");
+    bandEl.setAttribute("stroke-linejoin", "round");
+    svg2.appendChild(bandEl);
+
+    // Flèche orange pointant vers le bas (vers la phase Initialisation)
+    const fHalf = bandH / 2;
+    const fLen  = 40;
+    const fArrow = document.createElementNS(NS, "polygon");
+    fArrow.setAttribute("points", [
+      `${Q3x},${dropY + fLen}`,             // pointe vers le bas
+      `${Q3x - fHalf},${dropY }`,        // coin gauche
+      `${Q3x + fHalf},${dropY}`,        // coin droit
+    ].join(" "));
+    fArrow.setAttribute("fill", "var(--sand)");
+    svg2.appendChild(fArrow);
+
+    lifecycle.appendChild(svg2);
   });
 }
 
@@ -131,7 +280,6 @@ function renderPhaseTracks() {
 
 function renderProcedures() {
   procedureList.innerHTML = "";
-
   Procedure_link.forEach(proc => {
     const button = document.createElement("button");
     button.type      = "button";
@@ -149,6 +297,7 @@ function renderProcedures() {
 function render() {
   renderPhaseTracks();
   renderProcedures();
+  renderHandoverConnector();
 }
 
 // ─── Event listeners ─────────────────────────────────────────────────────────
@@ -158,6 +307,7 @@ document.getElementById("drawerBackdrop").addEventListener("click", closeDrawer)
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") closeDrawer();
 });
+window.addEventListener("resize", () => requestAnimationFrame(renderHandoverConnector));
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
