@@ -139,7 +139,10 @@ const meetContainer = document.getElementById("meetingLevels");
 levels.forEach(lvl => {
   const col = document.createElement("div");
   col.className = "meetings-col";
-  col.innerHTML = `<div class="row-arrow2">↓</div>`;
+  col.innerHTML = `<div class="plc-row-arrows">
+          <span class="row-arrow2">↓</span>
+          <span class="row-arrow2">↓</span>
+        </div>`;
 
   const pairs = [
     { internal: meetings[0], client: meetings[1] },
