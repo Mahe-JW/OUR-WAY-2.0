@@ -29,6 +29,14 @@
   --assystel-blue: #0078c8;
 }
 
+html {
+  /* Réserve l'espace de la barre de défilement même quand elle n'est pas
+     encore affichée, pour éviter qu'elle apparaisse/disparaisse entre le
+     premier rendu et un refresh et décale ainsi les calculs de largeur
+     (ex: .page { width: min(1600px, 100%) }) utilisés par les flèches SVG. */
+  scrollbar-gutter: stable;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -142,11 +150,25 @@ button {
 }
 
 .plc-row {
-  display:flex;
+  display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 10px;
+  gap: 6px;
   flex: 1;
+}
+
+/* Les deux flèches côte à côte */
+.plc-row-arrows {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+/* Les deux boutons Framework empilés */
+.plc-row-buttons {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 6px;
 }
 
 /* PLC button (blue dark) → index.html */
@@ -194,7 +216,21 @@ button {
 
 /* Framework button (light blue) → matrix.html */
 .btn-framework {
-  background: var(--blue-pale);
+  background: var(--orange);
+  color: var(--white);
+  border: none;
+  border-radius: 7px;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.3;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-framework2 {
+  background: var(--red);
   color: var(--white);
   border: none;
   border-radius: 7px;
@@ -211,6 +247,15 @@ button {
 .btn-framework .btn-label { font-size: 0.72rem; font-weight: 400; color: #d8f0fc; display: block; }
 /* ── Dots on framework ── */
 .btn-framework::after {
+  content: " ✎";
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.btn-framework2:hover { background: #2e9dd4; transform: translateY(-1px); }
+.btn-framework2 .btn-label { font-size: 0.72rem; font-weight: 400; color: #d8f0fc; display: block; }
+/* ── Dots on framework ── */
+.btn-framework2::after {
   content: " ✎";
   font-size: 0.8rem;
   opacity: 0.7;
@@ -820,6 +865,16 @@ button {
 .phase-note {
   margin: 4px 4px 0;
   font-style: italic;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 1.25;
+  color: #555;            /* texte sombre sur fond clair */
+  text-align: left;
+}
+
+.phase-subtitle {
+  display: none;
+  margin-top: 4px;
   font-weight: 600;
   font-size: 11px;
   line-height: 1.25;
@@ -2195,23 +2250,44 @@ tfoot .real { color: var(--red); }
 }
 
 /* ─── Responsive ─── */
-
-@media (max-width: 1360px) {
+@media (max-width: 1500px) {
   .workspace {
     grid-template-columns: 1fr;
   }
   .aside {
     grid-template-columns: minmax(0, 1fr) minmax(260px, .7fr);
   }
+  .large-btn-procedure {
+    font-size: 0.8rem;
+  }
+  .btn-procedure--child2 {
+  font-size: 0.8rem;
+}
 }
 
-@media (max-width: 990px) {
+@media (max-width: 1160px) {
+  .phase-title {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 1090px) {
+  .phase-title {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 1020px) {
   .topbar,
   .aside {
     grid-template-columns: 1fr;
   }
   .content {
     grid-template-columns: 1fr;
+  }
+  .lifecycle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
   .tools {
     justify-content: stretch;
@@ -2224,7 +2300,14 @@ tfoot .real { color: var(--red); }
     min-height: 2600px;
     padding: 88px 14px 22px;
   }
-
+  .phase-subtitle {
+    display: block;
+    color: #fff;
+    font-size: 11px;
+  }
+  .phase-note {
+    display: none;
+  }
   .lifecycle.bid-track.phase-title {
     font-size: 30px;
   }
@@ -2249,9 +2332,16 @@ tfoot .real { color: var(--red); }
   }
   .phase-node {
     min-height: 100px;
+
   }
+  .gate-node,
   .gate-node2 {
-    min-height: 130px;
+    padding-bottom: 0px;
+    border: none;
+  }
+  .gate-node-badge,
+  .gate-node2-badge {
+    transform: translate(-50%, -65%);
   }
   .category-rail {
     position: static;
@@ -2264,11 +2354,26 @@ tfoot .real { color: var(--red); }
   .gate-node-title {
     writing-mode: horizontal-tb;
     transform: none;
-    font-size: 9px;
-    padding: 4px 2px;
+    font-size: 14px;
     text-align: center;
     white-space: normal;       /* autorise le retour à la ligne */
     overflow: hidden;
     line-height: 1.1;
+    width: auto;
+  }
+  .gate-wrapper--bid::before, 
+  .gate-wrapper--real::before {
+    border: none;
+    border-radius: 0;
+  }
+  .gate-wrapper--bid {
+    background: var(--orange-sand);
+  }
+  .gate-wrapper--real {
+    background: var(--red-sand);
+  }
+  .phase-subtitle {
+    margin-bottom: 4px;
+    margin-top: 0;
   }
 }
