@@ -230,7 +230,7 @@ function renderHandoverConnector() {
     const Q2y = Py;
     // arrivée du virage (début descente)
     const Q3x = Q2x;
-    const Q3y = initNodeRect.top + initNodeRect.height / 2 -10; // centre vertical d'Init
+    const Q3y = initNodeRect.top + initNodeRect.height / 2 -2; // centre vertical d'Init
 
     // Descente après le virage : on va un peu plus bas pour montrer le virage
     const dropY = Q3y; // centre vertical de la phase Initialisation
