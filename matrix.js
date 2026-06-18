@@ -58,13 +58,13 @@ function renderMatrix() {
   topbar.classList.toggle("is-bid", isBid);
   topbar.classList.toggle("is-real", !isBid);
   const pageTitle     = document.getElementById("pageTitle");
-  pageTitle.textContent   = isBid ? "L1 Bid Checklist" : "L1 Realisation Checklist";
+  pageTitle.textContent   = isBid ? "L1 Bid Framework" : "L1 Realisation Framework";
   const matrixCurrent = document.getElementById("matrixCurrent");
   document.documentElement.style.setProperty("--orange", isBid ? "#ff6b00" : "#c90009");
   document.documentElement.style.setProperty("--orange-dark", isBid ? "#ad4100" : "#970007");
   matrixCurrent.innerHTML = isBid
-  ? '<span class="matrixCtext">Realisation Checklist</span> <span class="arrow-right">➜</span>'
-  : '<span class="arrow-left">➜</span> <span class="matrixCtext">Bid Checklist</span>';
+  ? '<span class="matrixCtext">Realisation Framework</span> <span class="arrow-right">➜</span>'
+  : '<span class="arrow-left">➜</span> <span class="matrixCtext">Bid Framework</span>';
   matrixCurrent.style.background = isBid ? "#c90009" : "#ff6b00";
 
   matrixCurrent.onclick = () => {
