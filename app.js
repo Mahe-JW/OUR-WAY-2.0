@@ -72,6 +72,7 @@ function renderPhaseTracks() {
     node.innerHTML = `
       <span class="phase-title">${phase.title}</span>
       <span class="phase-kicker">${phase.kicker || "&nbsp;"}</span>
+      <span class="phase-subtitle">${phase.note || "&nbsp;"}</span>
     `;
     node.addEventListener("click", () => {
       window.open(`matrix.html?phase=${phase.id}`, "_blank");
@@ -122,6 +123,27 @@ function renderPhaseTracks() {
 
 // ─── Render: grande courbe orange + bande sable avec virage vers Initialisation ──
 
+// ─── Utility: position of an element relative to an ancestor ─────────────────
+// Uses offsetLeft/offsetTop so results are independent of scroll position
+// and viewport width (no getBoundingClientRect drift).
+function offsetRelativeTo(el, ancestor) {
+  let top = 0, left = 0;
+  let cur = el;
+  while (cur && cur !== ancestor) {
+    top  += cur.offsetTop;
+    left += cur.offsetLeft;
+    cur   = cur.offsetParent;
+  }
+  return {
+    top,
+    left,
+    right:  left + el.offsetWidth,
+    bottom: top  + el.offsetHeight,
+    width:  el.offsetWidth,
+    height: el.offsetHeight,
+  };
+}
+
 function renderHandoverConnector() {
   ["handoverConnector", "realBackingSvg"].forEach(id => {
     const el = document.getElementById(id);
@@ -135,160 +157,274 @@ function renderHandoverConnector() {
 
   if (!handoverGate || !realBacking || !lifecycle || !initPhase) return;
 
-  requestAnimationFrame(() => {
-    lifecycle.style.overflow = "visible";
+  // lifecycle must be the offset ancestor for our calculations
+  lifecycle.style.position = lifecycle.style.position || "relative";
+  lifecycle.style.overflow = "visible";
 
-    const lcRect   = lifecycle.getBoundingClientRect();
-    const hgRect   = handoverGate.getBoundingClientRect();
-    const rbRect   = realBacking.getBoundingClientRect();
-    const initRect = initPhase.getBoundingClientRect();
+  const NS = "http://www.w3.org/2000/svg";
 
-    const NS = "http://www.w3.org/2000/svg";
+  // ── Mesures en coordonnées relatives à .lifecycle ──────────────────────────
+  const hgPos   = offsetRelativeTo(handoverGate, lifecycle);
+  const rbPos   = offsetRelativeTo(realBacking,  lifecycle);
+  const initPos = offsetRelativeTo(initPhase,    lifecycle);
 
-    // ════════════════════════════════════════════════
-    // SVG 1 — Grande courbe orange Handover → real-backing
-    // ════════════════════════════════════════════════
-    const strokeW = 60;
-    const r       = strokeW / 2;
+  const initNode     = initPhase.querySelector(".phase-node") || initPhase.firstElementChild;
+  const initNodePos  = initNode ? offsetRelativeTo(initNode, lifecycle) : initPos;
 
-    const Ax = hgRect.right - lcRect.left;
-    const Ay = hgRect.top + hgRect.height / 3 - lcRect.top - 18;
+  // ════════════════════════════════════════════════
+  // SVG 1 — Grande courbe orange Handover → real-backing
+  // ════════════════════════════════════════════════
+  const strokeW = 60;
+  const r       = strokeW / 2;
 
-    const Dx = rbRect.left - lcRect.left + 500;
-    const Dy = rbRect.top + rbRect.height / 2 - lcRect.top;
+  const Ax = hgPos.right;
+  const Ay = hgPos.top + hgPos.height / 3 - 18;
 
-    const Bx = Math.max(Ax, Dx) + 90;
-    const By = Ay;
-    const Cx = Bx;
-    const Cy = Dy;
+  const Dx = rbPos.left + 500;
+  const Dy = rbPos.top  + rbPos.height / 2;
 
-    const curvePath =
-      `M ${Ax} ${Ay}` +
-      ` L ${Bx - r} ${By}` +
-      ` Q ${Bx} ${By} ${Bx} ${By + r}` +
-      ` L ${Cx} ${Cy - r}` +
-      ` Q ${Cx} ${Cy} ${Cx - r} ${Cy}` +
-      ` L ${Dx} ${Dy}`;
+  const Bx = Math.max(Ax, Dx) + 90;
+  const By = Ay;
+  const Cx = Bx;
+  const Cy = Dy;
 
-    const svg1 = document.createElementNS(NS, "svg");
-    svg1.id = "handoverConnector";
-    Object.assign(svg1.style, {
-      position: "absolute", left: "0", top: "0",
-      width: "100%", height: "100%",
-      overflow: "visible", pointerEvents: "none", zIndex: "2",
-    });
+  const curvePath =
+    `M ${Ax} ${Ay}` +
+    ` L ${Bx - r} ${By}` +
+    ` Q ${Bx} ${By} ${Bx} ${By + r}` +
+    ` L ${Cx} ${Cy - r}` +
+    ` Q ${Cx} ${Cy} ${Cx - r} ${Cy}` +
+    ` L ${Dx} ${Dy}`;
 
-    const pathEl = document.createElementNS(NS, "path");
-    pathEl.setAttribute("d",               curvePath);
-    pathEl.setAttribute("fill",            "none");
-    pathEl.setAttribute("stroke",          "var(--orange)");
-    pathEl.setAttribute("stroke-width",    strokeW);
-    pathEl.setAttribute("stroke-linecap",  "butt");
-    pathEl.setAttribute("stroke-linejoin", "round");
-    svg1.appendChild(pathEl);
-
-    // Flèche orange au point D (pointe vers la gauche)
-    const arrowHalf = strokeW * 0.7;
-    const arrowTip1 = document.createElementNS(NS, "polygon");
-    arrowTip1.setAttribute("points", [
-      `${Dx - 28},${Dy}`,
-      `${Dx + 4},${Dy - arrowHalf}`,
-      `${Dx + 4},${Dy + arrowHalf}`,
-    ].join(" "));
-    arrowTip1.setAttribute("fill", "var(--orange)");
-    svg1.appendChild(arrowTip1);
-
-    lifecycle.appendChild(svg1);
-
-    // ════════════════════════════════════════════════
-    // SVG 2 — Bande sable + virage + flèche vers Initialisation
-    // ════════════════════════════════════════════════
-    //
-    // La bande part du point D (fin de la courbe orange),
-    // va vers la gauche jusqu'au bord GAUCHE de la phase Initialisation,
-    // puis descend légèrement (virage arrondi) et pointe vers la phase.
-    //
-    // Points :
-    //   P  = D (départ, bord droit de la bande)
-    //   Q1 = bord gauche d'Initialisation, même Y que D  → fin du segment horizontal
-    //   Q2 = virage arrondi vers le bas
-    //   Q3 = pointe de la flèche (centre vertical d'Initialisation)
-
-    const bandH   = strokeW * 0.85;   // épaisseur bande sable
-    const bandR   = bandH * 0.7;      // rayon du virage
-
-    // X du bord gauche de la phase Initialisation (node button, pas le wrapper)
-    const initNode = initPhase.querySelector(".phase-node") || initPhase.firstElementChild;
-    const initNodeRect = initNode ? initNode.getBoundingClientRect() : initRect;
-
-    const Px  = Dx + 10;                           // départ bande (légèrement après D)
-    const Py  = Dy;                                // même Y que la courbe orange
-    const Q1x = initNodeRect.left - lcRect.left + bandR + 10; // fin horizontale
-    const Q1y = Py;
-    // centre du virage
-    const Q2x = initNodeRect.left - lcRect.left + 10;
-    const Q2y = Py;
-    // arrivée du virage (début descente)
-    const Q3x = Q2x;
-    const Q3y = initNodeRect.top + initNodeRect.height / 2 -2; // centre vertical d'Init
-
-    // Descente après le virage : on va un peu plus bas pour montrer le virage
-    const dropY = Q3y; // centre vertical de la phase Initialisation
-
-    // Path de la bande sable :
-    // horizontal P → Q1, virage arrondi Q1 → Q2 → bas, descend jusqu'à dropY
-    const bandPath =
-      `M ${Px} ${Py}` +
-      ` L ${Q1x} ${Q1y}` +
-      ` Q ${Q2x} ${Q2y} ${Q2x} ${Q2y + bandR}` +
-      ` L ${Q3x} ${dropY}`;
-
-    const svg2 = document.createElementNS(NS, "svg");
-    svg2.id = "realBackingSvg";
-    Object.assign(svg2.style, {
-      position: "absolute", left: "0", top: "0",
-      width: "100%", height: "100%",
-      overflow: "visible", pointerEvents: "none", zIndex: "1",
-    });
-
-    const bandEl = document.createElementNS(NS, "path");
-    bandEl.setAttribute("d",               bandPath);
-    bandEl.setAttribute("fill",            "none");
-    bandEl.setAttribute("stroke",          "var(--sand)");
-    bandEl.setAttribute("stroke-width",    bandH);
-    bandEl.setAttribute("stroke-linecap",  "butt");
-    bandEl.setAttribute("stroke-linejoin", "round");
-    svg2.appendChild(bandEl);
-
-    // Flèche orange pointant vers le bas (vers la phase Initialisation)
-    const fHalf = bandH / 2;
-    const fLen  = 40;
-    const fArrow = document.createElementNS(NS, "polygon");
-    fArrow.setAttribute("points", [
-      `${Q3x},${dropY + fLen}`,             // pointe vers le bas
-      `${Q3x - fHalf},${dropY}`,        // coin gauche
-      `${Q3x + fHalf},${dropY}`,        // coin droit
-    ].join(" "));
-    fArrow.setAttribute("fill", "var(--sand)");
-    svg2.appendChild(fArrow);
-
-    lifecycle.appendChild(svg2);
+  const svg1 = document.createElementNS(NS, "svg");
+  svg1.id = "handoverConnector";
+  Object.assign(svg1.style, {
+    position: "absolute", left: "0", top: "0",
+    width: "100%", height: "100%",
+    overflow: "visible", pointerEvents: "none", zIndex: "2",
   });
+
+  const pathEl = document.createElementNS(NS, "path");
+  pathEl.setAttribute("d",               curvePath);
+  pathEl.setAttribute("fill",            "none");
+  pathEl.setAttribute("stroke",          "var(--orange)");
+  pathEl.setAttribute("stroke-width",    strokeW);
+  pathEl.setAttribute("stroke-linecap",  "butt");
+  pathEl.setAttribute("stroke-linejoin", "round");
+  svg1.appendChild(pathEl);
+
+  const arrowHalf = strokeW * 0.7;
+  const arrowTip1 = document.createElementNS(NS, "polygon");
+  arrowTip1.setAttribute("points", [
+    `${Dx - 28},${Dy}`,
+    `${Dx + 4},${Dy - arrowHalf}`,
+    `${Dx + 4},${Dy + arrowHalf}`,
+  ].join(" "));
+  arrowTip1.setAttribute("fill", "var(--orange)");
+  svg1.appendChild(arrowTip1);
+
+  lifecycle.appendChild(svg1);
+
+  // ════════════════════════════════════════════════
+  // SVG 2 — Bande sable + virage + flèche vers Initialisation
+  // ════════════════════════════════════════════════
+  const bandH = strokeW * 0.85;
+  const bandR = bandH * 0.7;
+
+  const Px  = Dx + 10;
+  const Py  = Dy;
+  const Q1x = initNodePos.left + bandR + 10;
+  const Q1y = Py;
+  const Q2x = initNodePos.left + 10;
+  const Q2y = Py;
+  const Q3x = Q2x;
+  const Q3y = initNodePos.top + initNodePos.height / 2 - 70;
+  const dropY = Q3y;
+
+  const bandPath =
+    `M ${Px} ${Py}` +
+    ` L ${Q1x} ${Q1y}` +
+    ` Q ${Q2x} ${Q2y} ${Q2x} ${Q2y + bandR}` +
+    ` L ${Q3x} ${dropY}`;
+
+  const svg2 = document.createElementNS(NS, "svg");
+  svg2.id = "realBackingSvg";
+  Object.assign(svg2.style, {
+    position: "absolute", left: "0", top: "0",
+    width: "100%", height: "100%",
+    overflow: "visible", pointerEvents: "none", zIndex: "1",
+  });
+
+  const bandEl = document.createElementNS(NS, "path");
+  bandEl.setAttribute("d",               bandPath);
+  bandEl.setAttribute("fill",            "none");
+  bandEl.setAttribute("stroke",          "var(--sand)");
+  bandEl.setAttribute("stroke-width",    bandH);
+  bandEl.setAttribute("stroke-linecap",  "butt");
+  bandEl.setAttribute("stroke-linejoin", "round");
+  svg2.appendChild(bandEl);
+
+  const fHalf = bandH / 2;
+  const fLen  = 40;
+  const fArrow = document.createElementNS(NS, "polygon");
+  fArrow.setAttribute("points", [
+    `${Q3x},${dropY + fLen}`,
+    `${Q3x - fHalf},${dropY}`,
+    `${Q3x + fHalf},${dropY}`,
+  ].join(" "));
+  fArrow.setAttribute("fill", "var(--sand)");
+  svg2.appendChild(fArrow);
+
+  lifecycle.appendChild(svg2);
 }
 
 // ─── Render: procedure list ───────────────────────────────────────────────────
 
+document.addEventListener("click", function (e) {
+  if (!e.target.closest(".proc-wrapper")) {
+    document.querySelectorAll(".proc-sub-group").forEach(g => g.classList.remove("open"));
+    document.querySelectorAll(".btn-procedure.is-expanded").forEach(b => b.classList.remove("is-expanded"));
+  }
+});
+
 function renderProcedures() {
   procedureList.innerHTML = "";
-  Procedure_link.forEach(proc => {
-    const button = document.createElement("button");
-    button.type      = "button";
-    button.className = "procedure-button";
-    button.textContent = proc.procedure;
-    button.addEventListener("click", () => {
-      if (proc.link) window.open(proc.link, "_blank");
-    });
-    procedureList.appendChild(button);
+
+  // ── Grid 1 : Home_procedures ──────────────────────────────────────────────
+  Home_procedures.forEach(p => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "proc-wrapper";
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    if (p.name === "Procedure Communication & Stakeholders Mgt" ||
+        p.name === "Procedure Quality & Continuous Improvement Mgt") {
+      btn.className = "large-btn-procedure";
+    } else {
+      btn.className = "btn-procedure";
+    }
+    btn.textContent = p.name;
+
+    if (p.keyDoc) {
+      const subGroup = document.createElement("div");
+      subGroup.className = "proc-sub-group";
+
+      const btnProc = document.createElement("button");
+      btnProc.type = "button";
+      if (p.name === "Procedure Quality & Continuous Improvement Mgt") {
+        btnProc.className = "btn-procedure btn-procedure--child2";
+      } else {
+        btnProc.className = "btn-procedure btn-procedure--child";
+      }
+      btnProc.textContent = p.name;
+      btnProc.addEventListener("click", (e) => {
+        e.stopPropagation();
+        window.open(p.link, "_blank");
+      });
+
+      const btnDoc = document.createElement("button");
+      btnDoc.type = "button";
+      btnDoc.className = "btn-procedure btn-procedure--child btn-procedure--doc";
+      btnDoc.textContent = p.keyDoc.label;
+      btnDoc.addEventListener("click", (e) => {
+        e.stopPropagation();
+        window.open(p.keyDoc.link, "_blank");
+      });
+
+      subGroup.appendChild(btnProc);
+      subGroup.appendChild(btnDoc);
+
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        document.querySelectorAll(".proc-sub-group").forEach(g => {
+          if (g !== subGroup) g.classList.remove("open");
+        });
+        document.querySelectorAll(".btn-procedure.is-expanded").forEach(b => {
+          if (b !== btn) b.classList.remove("is-expanded");
+        });
+        subGroup.classList.toggle("open");
+        btn.classList.toggle("is-expanded");
+      });
+
+      wrapper.appendChild(btn);
+      wrapper.appendChild(subGroup);
+    } else {
+      btn.addEventListener("click", () => window.open(p.link, "_blank"));
+      wrapper.appendChild(btn);
+    }
+
+    procedureList.appendChild(wrapper);
+  });
+
+  // ── Grid 2 : Home_procedures2 ─────────────────────────────────────────────
+  // On crée un second conteneur dans l'aside si ce n'est pas déjà fait
+  let procedureList2 = document.getElementById("procedureList2");
+  if (!procedureList2) {
+    procedureList2 = document.createElement("div");
+    procedureList2.className = "procedure-list";
+    procedureList2.id = "procedureList2";
+    procedureList.parentNode.appendChild(procedureList2);
+  }
+  procedureList2.innerHTML = "";
+
+  Home_procedures2.forEach(p => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "proc-wrapper";
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    if (p.keyDoc && (p.keyDoc.label === "PMQP" || p.keyDoc.label === "IS Plan")) {
+      btn.className = "large-btn-procedure2";
+    } else {
+      btn.className = "btn-procedure2";
+    }
+    btn.textContent = p.name;
+
+    if (p.keyDoc) {
+      const subGroup = document.createElement("div");
+      subGroup.className = "proc-sub-group";
+
+      const btnProc = document.createElement("button");
+      btnProc.type = "button";
+      btnProc.className = "btn-procedure btn-procedure--child";
+      btnProc.textContent = p.name;
+      btnProc.addEventListener("click", (e) => {
+        e.stopPropagation();
+        window.open(p.link, "_blank");
+      });
+
+      const btnDoc = document.createElement("button");
+      btnDoc.type = "button";
+      btnDoc.className = "btn-procedure btn-procedure--child btn-procedure--doc";
+      btnDoc.textContent = p.keyDoc.label;
+      btnDoc.addEventListener("click", (e) => {
+        e.stopPropagation();
+        window.open(p.keyDoc.link, "_blank");
+      });
+
+      subGroup.appendChild(btnProc);
+      subGroup.appendChild(btnDoc);
+
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        document.querySelectorAll(".proc-sub-group").forEach(g => {
+          if (g !== subGroup) g.classList.remove("open");
+        });
+        document.querySelectorAll(".btn-procedure.is-expanded").forEach(b => {
+          if (b !== btn) b.classList.remove("is-expanded");
+        });
+        subGroup.classList.toggle("open");
+        btn.classList.toggle("is-expanded");
+      });
+
+      wrapper.appendChild(btn);
+      wrapper.appendChild(subGroup);
+    } else {
+      btn.addEventListener("click", () => window.open(p.link, "_blank"));
+      wrapper.appendChild(btn);
+    }
+
+    procedureList2.appendChild(wrapper);
   });
 }
 
@@ -297,7 +433,15 @@ function renderProcedures() {
 function render() {
   renderPhaseTracks();
   renderProcedures();
-  renderHandoverConnector();
+  scheduleHandoverConnectorRender();
+}
+
+// Un seul rAF suffit : offsetLeft/Top ne dépendent pas de la viewport,
+// donc la scrollbar ou le zoom ne décalent plus les coordonnées.
+function scheduleHandoverConnectorRender() {
+  requestAnimationFrame(() => {
+    renderHandoverConnector();
+  });
 }
 
 // ─── Event listeners ─────────────────────────────────────────────────────────
@@ -307,7 +451,17 @@ document.getElementById("drawerBackdrop").addEventListener("click", closeDrawer)
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") closeDrawer();
 });
-window.addEventListener("resize", () => requestAnimationFrame(renderHandoverConnector));
+window.addEventListener("resize", scheduleHandoverConnectorRender);
+
+// Sécurité supplémentaire : si la taille de .lifecycle change après le
+// premier rendu pour une raison quelconque (barre de défilement qui
+// apparaît, zoom, police...), on recalcule la flèche automatiquement.
+if (window.ResizeObserver) {
+  const lifecycleEl = document.querySelector(".lifecycle");
+  if (lifecycleEl) {
+    new ResizeObserver(() => scheduleHandoverConnectorRender()).observe(lifecycleEl);
+  }
+}
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
