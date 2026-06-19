@@ -22,14 +22,30 @@ function gatesAfter(phaseId) {
 
 // ─── Render: gate button ──────────────────────────────────────────────────────
 function makeGateButton(gate) {
-  const wrapper = document.createElement("div");
   const isRealGate = gate.stream === "real";
-  wrapper.className = `gate-wrapper ${isRealGate ? "gate-wrapper--real" : "gate-wrapper--bid"}`;
 
-  const badge = document.createElement("span");
+  // Wrapper positionné en relative pour ancrer le badge en absolute
+  const wrapper = document.createElement("div");
+  if (gate.border) {
+    wrapper.className = `gate-wrapper gate-wrapper--border`;
+  }
+  else {
+    wrapper.className = `gate-wrapper ${isRealGate ? "gate-wrapper--real" : "gate-wrapper--bid"}`;
+  }
+
+  // Badge : maintenant un <button> FRÈRE du gate-node (plus imbriqué dedans)
+  // Il est positionné en absolute via CSS depuis le wrapper
+  const badge = document.createElement("button");
+  badge.type      = "button";
   badge.className = gate.badge === "Internal" ? "gate-node-badge" : "gate-node-badge2";
-  badge.textContent = gate.badge;
+  badge.textContent = gate.badge;                       // ← texte visible
+  badge.title       = gate.badge;
+  badge.addEventListener("click", (e) => {
+    e.stopPropagation();
+    window.open(gate.link, "_blank");                   // même lien que le gate (à personnaliser)
+  });
 
+  // Bouton principal du gate (symbole + zone cliquable)
   const btn = document.createElement("button");
   btn.type      = "button";
   btn.className = isRealGate ? "gate-node2" : "gate-node";
@@ -37,17 +53,21 @@ function makeGateButton(gate) {
   btn.innerHTML = `<span class="gate-node-symbol">${gate.symbol}</span>`;
   btn.addEventListener("click", () => window.open(gate.link, "_blank"));
 
+  // Titre sous le gate
   const title = document.createElement("p");
-  if (gate.title == "Kick Off Meetings" || gate.title == "Project Reviews" || gate.title == "Closure Meetings") {
-    title.className   = "gate-node-title2";
+  if (gate.repeat) {
+    title.className = "gate-node-title4"
   }
-  else if (gate.title == "Steering Comitees"){
-    title.className   = "gate-node-title3";
+  else if (gate.title === "Kick Off Meetings" || gate.title === "Project Reviews" || gate.title === "Closure Meetings") {
+    title.className = "gate-node-title2";
+  } else if (gate.title === "Steering Comitees") {
+    title.className = "gate-node-title3";
+  } else {
+    title.className = "gate-node-title";
   }
-  else {
-    title.className   = "gate-node-title";
-  }
-  title.innerHTML   = gate.title;
+  title.innerHTML = gate.title;
+
+  // Ordre : badge en premier (z-index géré par CSS), puis le bouton, puis le titre
   wrapper.appendChild(badge);
   wrapper.appendChild(btn);
   wrapper.appendChild(title);
@@ -86,8 +106,12 @@ function renderPhaseTracks() {
     wrapper.appendChild(note);
     bidTrack.appendChild(wrapper);
 
-    gatesAfter(phase.id).filter(g => !g.stream || g.stream === "transition").forEach(gate => {
-      bidTrack.appendChild(makeGateButton(gate));
+    // Bid track — dans la boucle bidPhases.forEach
+    const bidGates = gatesAfter(phase.id).filter(g => !g.stream || g.stream === "transition");
+    bidGates.forEach((gate, i) => {
+      const gateEl = makeGateButton(gate);
+      if (i === bidGates.length - 1) gateEl.classList.add("gate-wrapper--last");
+      bidTrack.appendChild(gateEl);
     });
   });
 
@@ -115,8 +139,12 @@ function renderPhaseTracks() {
     wrapper.appendChild(note);
     realTrack.appendChild(wrapper);
 
-    gatesAfter(phase.id).filter(g => g.stream === "real").forEach(gate => {
-      realTrack.appendChild(makeGateButton(gate));
+    // Real track — dans la boucle realPhases.forEach
+    const realGates = gatesAfter(phase.id).filter(g => g.stream === "real");
+    realGates.forEach((gate, i) => {
+      const gateEl = makeGateButton(gate);
+      if (i === realGates.length - 1) gateEl.classList.add("gate-wrapper--last");
+      realTrack.appendChild(gateEl);
     });
   });
 }
@@ -149,6 +177,10 @@ function renderHandoverConnector() {
     const el = document.getElementById(id);
     if (el) el.remove();
   });
+
+  // En dessous de 1020px le layout est réorganisé en colonne :
+  // les SVG n'ont plus de sens et sont cachés par le CSS.
+  if (window.innerWidth <= 1020) return;
 
   const lifecycle    = document.querySelector(".lifecycle");
   const realBacking  = document.querySelector(".real-backing");
