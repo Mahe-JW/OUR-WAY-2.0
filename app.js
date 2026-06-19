@@ -51,7 +51,10 @@ function makeGateButton(gate) {
   btn.className = isRealGate ? "gate-node2" : "gate-node";
   btn.title     = gate.title;
   btn.innerHTML = `<span class="gate-node-symbol">${gate.symbol}</span>`;
-  btn.addEventListener("click", () => window.open(gate.link, "_blank"));
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    window.open(gate.link, "_blank");
+  });
 
   // Titre sous le gate
   const title = document.createElement("p");
@@ -66,6 +69,13 @@ function makeGateButton(gate) {
     title.className = "gate-node-title";
   }
   title.innerHTML = gate.title;
+
+  // En mode ≤1020px le wrapper couvre toute la surface visible du gate.
+  // On y ajoute un listener de clic pour que le titre, les marges et toute
+  // zone autour du bouton et du badge soient cliquables.
+  // Le badge possède déjà un e.stopPropagation(), donc son lien propre est
+  // préservé ; le bouton gate-node propage normalement jusqu'au wrapper.
+  wrapper.addEventListener("click", () => window.open(gate.link, "_blank"));
 
   // Ordre : badge en premier (z-index géré par CSS), puis le bouton, puis le titre
   wrapper.appendChild(badge);
