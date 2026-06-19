@@ -4,6 +4,18 @@ let selectedPhaseId = params.get("phase") || "opportunity";
 let selectedCategoryId = "all";
 let query              = "";
 
+// Bouton retour : on revient vers la page qui a ouvert matrix.html
+// (index.html par defaut, ou Life_cycle.html si elle a ete ouverte depuis la
+// page de cycle de vie via le parametre ?from=lifecycle)
+const cameFrom   = params.get("from");
+const backTarget = cameFrom === "lifecycle" ? "Life_cycle.html" : "index.html";
+const backButton = document.getElementById("backButton");
+if (backButton) {
+  backButton.addEventListener("click", () => {
+    window.location.href = backTarget;
+  });
+}
+
 // DOM
 const categoryGrid  = document.getElementById("categoryGrid");
 const checklistTable= document.getElementById("checklistTable");
