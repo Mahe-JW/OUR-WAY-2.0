@@ -63,7 +63,7 @@ button {
   background: var(--blue-dark);
   color: var(--white);
   padding: 18px 32px 14px;
-  border-bottom: 4px solid var(--red-accent);
+  border-bottom: 4px solid var(--orange);
   display: flex;
   align-items: baseline;
   gap: 24px;
@@ -102,6 +102,8 @@ button {
   display: flex;
   flex-direction: column;
   gap: 0;
+  background: var(--bg);
+  border-right: 2px solid var(--line);
 }
 
 /* ── Right panel ── */
@@ -140,6 +142,7 @@ button {
   margin-bottom: 20px;
   text-align: center;
   cursor: default;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 
 /* ── PLC rows ── */
@@ -175,7 +178,7 @@ button {
 .btn-plc {
   background: var(--blue-mid);
   color: var(--white);
-  border: none;
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 7px;
   padding: 10px 18px;
   font-size: 0.9rem;
@@ -196,7 +199,7 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: var(--red-accent);
+  color: var(--red);
   font-size: 1.3rem;
   font-weight: 900;
   padding: 0 2px;
@@ -207,16 +210,16 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: var(--red-accent);
+  color: var(--red);
   font-size: 1.3rem;
   font-weight: 900;
   user-select: none;
   padding: 9px 2px;
 }
 
-/* Framework button (light blue) → matrix.html */
+/* Framework button — Bid → matrix.html */
 .btn-framework {
-  background: var(--orange);
+  background: var(--blue-pale);
   color: var(--white);
   border: none;
   border-radius: 7px;
@@ -229,8 +232,9 @@ button {
   transition: background 0.15s, transform 0.1s;
 }
 
+/* Framework button — Real → matrix.html */
 .btn-framework2 {
-  background: var(--red);
+  background: var(--blue-light);
   color: var(--white);
   border: none;
   border-radius: 7px;
@@ -243,18 +247,16 @@ button {
   transition: background 0.15s, transform 0.1s;
 }
 
-.btn-framework:hover { background: #2e9dd4; transform: translateY(-1px); }
-.btn-framework .btn-label { font-size: 0.72rem; font-weight: 400; color: #d8f0fc; display: block; }
-/* ── Dots on framework ── */
+.btn-framework:hover { background: var(--blue-dark); transform: translateY(-1px); }
+.btn-framework .btn-label { font-size: 0.72rem; font-weight: 400; color: rgba(255,255,255,0.7); display: block; }
 .btn-framework::after {
   content: " ✎";
   font-size: 0.8rem;
   opacity: 0.7;
 }
 
-.btn-framework2:hover { background: #2e9dd4; transform: translateY(-1px); }
-.btn-framework2 .btn-label { font-size: 0.72rem; font-weight: 400; color: #d8f0fc; display: block; }
-/* ── Dots on framework ── */
+.btn-framework2:hover { background: var(--blue-pale); transform: translateY(-1px); }
+.btn-framework2 .btn-label { font-size: 0.72rem; font-weight: 400; color: rgba(255,255,255,0.7); display: block; }
 .btn-framework2::after {
   content: " ✎";
   font-size: 0.8rem;
@@ -311,8 +313,9 @@ button {
   text-overflow: ellipsis;
 }
 
+/* Procédures groupe 2 — couleur orange pour distinguer des procédures bleues */
 .large-btn-procedure2 {
-  background: var(--blue-mid);
+  background: var(--orange-dark);
   color: var(--white);
   border: none;
   border-radius: 5px;
@@ -344,9 +347,9 @@ button {
 }
 
 .btn-procedure:hover { background: var(--blue-light); }
-.btn-procedure2:hover { background: #2e9dd4; }
+.btn-procedure2:hover { background: var(--orange); }
 .large-btn-procedure:hover { background: var(--blue-light); }
-.large-btn-procedure2:hover { background: #2e9dd4; }
+.large-btn-procedure2:hover { background: var(--orange); }
 
 
 /* ── Procedure sub-buttons ── */
@@ -446,7 +449,7 @@ button {
 }
 
 .btn-meeting {
-  background: var(--violet);
+  background: var(--blue-mid);
   color: var(--white);
   border: none;
   border-radius: 5px;
@@ -460,7 +463,7 @@ button {
   width: 100%;
 }
 
-.btn-meeting:hover { background: var(--violet-hover); }
+.btn-meeting:hover { background: var(--teal); }
 /* "Applied when relevant" note */
 .applied-note {
   font-size: 0.65rem;
@@ -790,6 +793,23 @@ button {
   white-space: normal;
   width: 100px;
   margin-left: 95px;
+}
+
+.gate-node-title4 {
+  writing-mode: horizontal-tb;   /* remplace vertical-rl */
+  transform: none;
+  font-size: clamp(10px, 1.4vw, 13px);
+  font-weight: 900;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--orange-dark);
+  line-height: 1.2;
+  margin-top: 5px;
+  padding: 0 2px;
+  white-space: normal;
+  width: 100px;
+  margin-left: 50px;
+  display: none; /* Masqué par défaut, affiché uniquement pour la 4e gate du real-track */
 }
 
 .real-track {
@@ -1372,7 +1392,8 @@ tfoot td {
    Elle dépasse aussi un peu au-dessus du wrapper et un peu en dessous du
    début du gate-node, pour créer l'effet "pilule" autour du badge. */
 .gate-wrapper--bid::before,
-.gate-wrapper--real::before {
+.gate-wrapper--real::before,
+.gate-wrapper--border::before {
   content: "";
   position: absolute;
   top: -15px;
@@ -1390,6 +1411,10 @@ tfoot td {
 }
 
 .gate-wrapper--real::before {
+  background: var(--red-sand);
+}
+
+.gate-wrapper--border::before {
   background: var(--red-sand);
 }
 
@@ -2285,95 +2310,185 @@ tfoot .real { color: var(--red); }
   .content {
     grid-template-columns: 1fr;
   }
-  .lifecycle {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
   .tools {
     justify-content: stretch;
   }
-  .search
-  {
+  .search {
     width: 100%;
   }
+
+  /* ── Lifecycle : 2 colonnes côte à côte (bid | real) ── */
   .lifecycle {
-    min-height: 2600px;
-    padding: 88px 14px 22px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: unset;          /* laisse le contenu dicter la hauteur */
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* Chaque lane occupe une colonne et s'empile verticalement */
+  .lifecycle > .bid,
+  .lifecycle > .real {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Labels de lane : retour au flux normal */
+  .lane-label.bid,
+  .lane-label.real {
+    position: static;
+    padding: 14px 12px 10px;
+    margin: 0;
+    font-size: 22px;
+  }
+  .lane-label.real {
+    margin-bottom: 0;
+  }
+
+  /* Tracks : flux normal, 1 colonne */
+  .bid-track,
+  .real-track {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    height: auto;
+    width: auto;
+    top: auto;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    margin: 0;
+    grid-template-columns: unset;
+  }
+
+  /* Phase nodes */
+  .phase-node {
+    min-height: 80px;
+    border-right: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.35);
+  }
+  .phase-note {
+    display: none;
   }
   .phase-subtitle {
     display: block;
     color: #fff;
     font-size: 11px;
-  }
-  .phase-note {
-    display: none;
-  }
-  .lifecycle.bid-track.phase-title {
-    font-size: 30px;
-  }
-  .lane-label.bid,
-  .lane-label.real {
-    position: static;
-    margin: 16px 0 8px;
-    font-size: 30px;
-  }
-  .bid-track,
-  .real-track {
-    position: static;
-    grid-template-columns: 1fr;
-    gap: 8px;
+    margin-bottom: 4px;
+    margin-top: 0;
   }
 
+  /* Masquer les éléments purement desktop */
   .handover-loop,
   .real-backing,
   .governance,
   .gate {
     display: none;
   }
-  .phase-node {
-    min-height: 100px;
-
-  }
-  .gate-node,
-  .gate-node2 {
-    padding-bottom: 0px;
-    border: none;
-  }
-  .gate-node-badge,
-  .gate-node2-badge {
-    transform: translate(-50%, -65%);
-  }
-  .category-rail {
-    position: static;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  #handoverConnector,
+  #realBackingSvg {
+    display: none;
   }
 
-  .matrix-current {
-    justify-self: start;
+  /* ── Gate wrappers ── */
+  /* Supprimer le ::before décoratif (position absolute, déborde) */
+  .gate-wrapper--bid::before,
+  .gate-wrapper--real::before,
+  .gate-wrapper--border::before {
+    display: none;
   }
-  .gate-node-title {
-    writing-mode: horizontal-tb;
-    transform: none;
-    font-size: 14px;
-    text-align: center;
-    white-space: normal;       /* autorise le retour à la ligne */
-    overflow: hidden;
-    line-height: 1.1;
-    width: auto;
+
+  /* Réinitialiser le wrapper en flux normal */
+  .gate-wrapper {
+    position: relative;
+    padding-top: 36px;          /* espace pour le badge qui dépasse en haut */
+    padding-bottom: 12px;
+    border-top: 2px solid rgba(255, 255, 255, 0.55);
+    border-bottom: none;        /* pas de trait en bas par défaut */
+    width: 100%;
   }
-  .gate-wrapper--bid::before, 
-  .gate-wrapper--real::before {
-    border: none;
-    border-radius: 0;
-  }
+
+  /* Séparateur uniquement entre gates successives d'une même phase
+     (entre --real et la suivante --real, géré via border-top suffisant) */
   .gate-wrapper--bid {
     background: var(--orange-sand);
   }
   .gate-wrapper--real {
     background: var(--red-sand);
+    /* plus de border-bottom ici — le border-top de l'élément suivant suffit */
   }
-  .phase-subtitle {
-    margin-bottom: 4px;
-    margin-top: 0;
+  .gate-wrapper--border {
+    background: var(--red-sand);
+  }
+
+  /* Badge : rester centré dans le wrapper, ne pas déborder latéralement */
+  .gate-node-badge,
+  .gate-node-badge2 {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Boutons gate */
+  .gate-node,
+  .gate-node2 {
+    width: 100%;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border: none;
+    overflow: visible;
+  }
+
+  /* Titres de gate */
+  .gate-node-title {
+    writing-mode: horizontal-tb;
+    transform: none;
+    font-size: 13px;
+    text-align: center;
+    white-space: normal;
+    overflow: hidden;
+    line-height: 1.2;
+    width: auto;
+    margin-top: 6px;
+    padding: 0 8px 8px;
+  }
+  .gate-node-title2,
+  .gate-node-title3,
+  .gate-node-title4 {
+    display: block;
+    margin-left: 0;
+    transform: none;
+    writing-mode: horizontal-tb;
+    font-size: 13px;
+    text-align: center;
+    white-space: normal;
+    width: auto;
+    padding: 0 8px 8px;
+    margin-top: 6px;
+  }
+
+  /* ── Matrix ── */
+  .category-rail {
+    position: static;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  .matrix-current {
+    justify-self: start;
+  }
+
+  /* ── Séparateur entre phase et ses gates ──
+     La première gate après une phase n'a pas besoin de border-top visible
+     si la phase a déjà un border-bottom. On la retire pour éviter le doublon. */
+  .phase-wrapper + .gate-wrapper {
+    border-top: none;
+  }
+}
+@media (max-width: 780px) {
+  .lane-label.bid {
+    width: 280px;
   }
 }
