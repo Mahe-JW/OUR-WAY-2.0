@@ -105,7 +105,7 @@ function renderPhaseTracks() {
       <span class="phase-subtitle">${phase.note || "&nbsp;"}</span>
     `;
     node.addEventListener("click", () => {
-      window.open(`matrix.html?phase=${phase.id}`, "_blank");
+      window.open(`matrix.html?phase=${phase.id}&from=lifecycle`, "_blank");
     });
 
     const note = document.createElement("p");
@@ -138,7 +138,7 @@ function renderPhaseTracks() {
       <span class="phase-kicker">${phase.kicker || "&nbsp;"}</span>
     `;
     node.addEventListener("click", () => {
-      window.open(`matrix.html?phase=${phase.id}`, "_blank");
+      window.open(`matrix.html?phase=${phase.id}&from=lifecycle`, "_blank");
     });
 
     const note = document.createElement("p");
