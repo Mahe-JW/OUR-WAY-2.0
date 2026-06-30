@@ -31,6 +31,7 @@
   --border:      #c8d8e8;
   --assystel-blue: #0078c8;
   --green: #00C706;
+  --green-hover: #00E000;
 }
 
 html {
@@ -468,6 +469,8 @@ button {
 .large-btn-procedure:hover { background: var(--blue-light); }
 .large-btn-procedure2:hover { background: #2e9dd4; }
 
+.btn-procedure3:hover { background: var(--blue-light); }
+.btn-procedure5:hover { background: var(--green-hover); }
 
 /* ── Procedure sub-buttons ── */
 .proc-wrapper {
