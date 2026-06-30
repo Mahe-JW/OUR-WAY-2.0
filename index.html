@@ -3,15 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Delivery Structure Overview</title>
+  <title>Ourway 2.0 Overview</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
   <div class="app">
 <header class="page-header">
-  <h1>Delivery Structure Overview</h1>
-  <span class="sub">Core-Process <strong>Delivery</strong></span>
+  <h1>Overview Ourway 2.0 / IMS</h1>
 </header>
 
 <div class="layout">
@@ -19,103 +18,56 @@
   <!-- ═══════════════ LEFT ═══════════════ -->
   <div class="left-panel">
 
-    <div class="classification-banner">Classification Tool</div>
-
-    <p class="section-title">Project Life Cycle &amp; Frameworks</p>
-
     <div class="plc-section">
 
       <!-- Level 1 -->
       <div class="plc-row">
-        <button class="btn-plc" onclick="window.open('Life_cycle.html', '_blank')">
-          Project Life Cycle
-          <span class="btn-label">L1</span>
+        <button class="btn-plc" onclick="window.open('DS.html', '_blank')">
+          Delivery Structure Overview
+          <span class="btn-label"></span>
         </button>
-        <div class="plc-row-arrows">
-          <span class="row-arrow">↓</span>
-          <span class="row-arrow">↓</span>
-        </div>
-        <div class="plc-row-buttons">
-          <button class="btn-framework" onclick="window.open('matrix.html?phase=opportunity&from=index', '_blank')">
-            Bid Framework L1
-            <span class="btn-label">Checklist interactive L1</span>
-          </button>
-          <button class="btn-framework2" onclick="window.open('matrix.html?phase=initialisation&from=index', '_blank')">
-            Real Framework L1
-            <span class="btn-label">Checklist interactive L1</span>
-          </button>
-        </div>
+    
+        
+        <button class="btn-plc" onclick="window.open('BMO.html', '_blank')">
+        Business Management Operations Structure Overview
+        <span class="btn-label"></span>
+        </button>
       </div>
 
       <!-- Level 2 -->
-      <div class="plc-row">
-        <button class="btn-plc" onclick="window.open('Life_cycle.html', '_blank')">
-          Project Life Cycle
-          <span class="btn-label">L2</span>
+       <div class="plc-row">
+      <button class="btn-plc" onclick="window.open('Execution.html', '_blank')">
+          Strategy Execution Structure Overview
+          <span class="btn-label"></span>
         </button>
-        <div class="plc-row-arrows">
-          <span class="row-arrow">↓</span>
-          <span class="row-arrow">↓</span>
-        </div>
-        <div class="plc-row-buttons">
-          <button class="btn-framework" onclick="window.open('matrix.html?phase=opportunity&from=index', '_blank')">
-            Bid Framework L2
-            <span class="btn-label">Checklist interactive L2</span>
-          </button>
-          <button class="btn-framework2" onclick="window.open('matrix.html?phase=initialisation&from=index', '_blank')">
-            Real Framework L2
-            <span class="btn-label">Checklist interactive L2</span>
-          </button>
-        </div>
+    
+        
+        <button class="btn-plc" onclick="window.open('BD.html', '_blank')">
+        Business Development Structure Overview
+        <span class="btn-label"></span>
+        </button>
       </div>
 
       <!-- Level 3 -->
-      <div class="plc-row">
-        <button class="btn-plc" onclick="window.open('Life_cycle.html', '_blank')">
-          Project Life Cycle
-          <span class="btn-label">L3</span>
-        </button>
-        <div class="plc-row-arrows">
-          <span class="row-arrow">↓</span>
-          <span class="row-arrow">↓</span>
+       <div class="plc-row">
+            <button class="btn-plc" onclick="window.open('P&S_Mgt.html', '_blank')">
+            People & Skills Management Structure Overview
+            <span class="btn-label"></span>
+            </button>
+        
+            
+            <button class="btn-plc" onclick="window.open('BMO.html', '_blank')">
+            Business Management Operations Structure Overview
+            <span class="btn-label"></span>
+            </button>
         </div>
-        <div class="plc-row-buttons">
-          <button class="btn-framework" onclick="window.open('matrix.html?phase=opportunity&from=index', '_blank')">
-            Bid Framework L3
-            <span class="btn-label">Checklist interactive L3</span>
-          </button>
-          <button class="btn-framework2" onclick="window.open('matrix.html?phase=initialisation&from=index', '_blank')">
-            Real Framework L3
-            <span class="btn-label">Checklist interactive L3</span>
-          </button>
-        </div>
-      </div>
-
     </div>
 
-    <!-- Governance meetings -->
-    <div class="meetings-section">
-      <div class="meetings-levels" id="meetingLevels"></div>
-    </div>
-
-  </div>
-
-  <!-- ═══════════════ RIGHT ═══════════════ -->
-  <div class="right-panel">
-
-    <!-- Procedures -->
-    <div>
-      <p class="right-section-title">Delivery Procedures</p>
-      <div class="procedures-grid" id="procedureButtons"></div>
-      <div class="procedures-grid" id="procedureButtons2"></div>
-    </div>
-
-    <hr class="right-divider">
-  </div>
 </div>
+
 </div>
 
 <script src="data.js"></script>
-<script src="home.js"></script>
+<script src="OURWAY.js"></script>
 </body>
 </html>
