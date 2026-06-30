@@ -8,7 +8,7 @@ let query              = "";
 // (index.html par defaut, ou Life_cycle.html si elle a ete ouverte depuis la
 // page de cycle de vie via le parametre ?from=lifecycle)
 const cameFrom   = params.get("from");
-const backTarget = cameFrom === "lifecycle" ? "Life_cycle.html" : "index.html";
+const backTarget = cameFrom === "lifecycle" ? "Life_cycle.html" : "DS.html";
 const backButton = document.getElementById("backButton");
 if (backButton) {
   backButton.addEventListener("click", () => {
