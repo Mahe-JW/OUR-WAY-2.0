@@ -22,12 +22,15 @@
   --blue-pale:   #4aa8d8;
   --violet:      #3b3070;
   --violet-hover:#4d409a;
+  --violet-light: #C2A3E0;
+  --violet-light-hover: #D9C2F0;
   --red-accent:  #c0001a;
   --white:       #ffffff;
   --bg:          #f0f4f8;
   --text-light:  #e8f0f8;
   --border:      #c8d8e8;
   --assystel-blue: #0078c8;
+  --green: #00C706;
 }
 
 html {
@@ -59,6 +62,12 @@ button {
   cursor: pointer;
 }
 
+.app {
+  width: 100%;
+  min-width: 100%;
+  margin: 0;
+}
+
 /* ── Header ── */
 .page-header {
   background: var(--blue-dark);
@@ -68,6 +77,7 @@ button {
   display: flex;
   align-items: baseline;
   gap: 24px;
+  min-width: 672px;
 }
 .page-header h1 {
   font-size: 1.55rem;
@@ -94,11 +104,21 @@ button {
   gap: 0;
   flex: 1;
   min-height: 0;
+  width: 100%;
 }
 
 /* ── Left panel ── */
 .left-panel {
   flex: 1 1 0;
+  padding: 28px 20px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Left panel 2 ── */
+.left-panel2 {
+  flex: 0.5 1 0;
   padding: 28px 20px 28px 28px;
   display: flex;
   flex-direction: column;
@@ -143,6 +163,26 @@ button {
   cursor: default;
 }
 
+.SE-classification-banner {
+  background: var(--green);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 9px 18px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+  cursor: default;
+  min-width: 220px;
+}
+
+.SE-procedures-section {
+  margin-left: 5%;
+  max-width: 90%;
+}
+
 /* ── PLC rows ── */
 .plc-section {
   display: flex;
@@ -168,8 +208,8 @@ button {
 /* Les deux boutons Framework empilés */
 .plc-row-buttons {
   display: grid;
-  grid-template-columns: auto auto;
-  gap: 6px;
+  grid-template-columns: auto;
+  gap: 15px;
 }
 
 /* PLC button (blue dark) → index.html */
@@ -262,6 +302,36 @@ button {
   opacity: 0.7;
 }
 
+.btn-framework4 {
+  background: var(--violet);
+  color: var(--white);
+  border: none;
+  border-radius: 7px;
+  padding: 25px 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.3;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn-framework4:hover { background: var(--violet-hover); transform: translateY(-1px); }
+.btn-framework4 .btn-label { font-size: 0.72rem; font-weight: 400; color: #d8f0fc; display: block; }
+
+.btn-framework5 {
+  background: var(--bg);
+  color: var(--bg);
+  border: none;
+  border-radius: 7px;
+  padding: 25px 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: left;
+  line-height: 1.3;
+  transition: background 0.15s, transform 0.1s;
+}
+
 /* ── Right panel sections ── */
 .right-section-title {
   font-size: 0.65rem;
@@ -272,11 +342,27 @@ button {
   margin-bottom: 6px;
 }
 
+.right-section-title2 {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6888a8;
+  margin-bottom: 15px;
+}
+
 /* Procedure buttons */
 .procedures-grid {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  margin-bottom: 16px;
+}
+
+.procedures-grid2 {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
   margin-bottom: 16px;
 }
 
@@ -344,6 +430,39 @@ button {
   text-overflow: ellipsis;
 }
 
+.btn-procedure5 {
+  background: var(--green);
+  color: var(--white);
+  border: none;
+  border-radius: 5px;
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-procedure3 {
+  background: var(--blue-mid);
+  color: var(--white);
+  border: none;
+  border-radius: 5px;
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 250px;
+}
+
 .btn-procedure:hover { background: var(--blue-light); }
 .btn-procedure2:hover { background: #2e9dd4; }
 .large-btn-procedure:hover { background: var(--blue-light); }
@@ -362,6 +481,13 @@ button {
   background: var(--blue-light);
 }
 
+/* État déplié du bouton parent violet (plc-row) */
+.btn-framework4.is-expanded {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  background: var(--violet-hover);
+}
+
 .proc-sub-group {
   display: none;
   flex-direction: column;
@@ -373,6 +499,11 @@ button {
 
 .proc-sub-group.open {
   display: flex;
+}
+
+/* Ligne de gauche en violet, uniquement pour les dropdowns des plc-row (BD) */
+.plc-row-buttons .proc-sub-group {
+  border-left-color: var(--violet-hover);
 }
 
 .btn-procedure--child {
@@ -397,12 +528,35 @@ button {
   font-size: 0.47rem;
 }
 
+.btn-procedure--child3 {
+  border-radius: 4px;
+  font-size: 0.72rem;
+  background: var(--violet);
+}
+
+.btn-procedure--child3::before {
+  content: "└ ";
+  opacity: 0.45;
+  font-size: 0.67rem;
+}
+.btn-procedure--child3:hover {
+  background: var(--violet-hover);
+}
+
 .btn-procedure--doc {
   background: var(--violet);
 }
 
 .btn-procedure--doc:hover {
   background: var(--violet-hover);
+}
+
+.btn-procedure--doc2 {
+  background: var(--violet-light);
+}
+
+.btn-procedure--doc2:hover {
+  background: var(--violet-light-hover);
 }
 
 /* Sub-docs row (PMOP, HSE Plan, etc.) */
@@ -2487,12 +2641,21 @@ tfoot .real { color: var(--red); }
     margin-top: 0;
   }
 }
+@media (max-width: 795px) {
+  .btn-procedure3{
+    font-size: 0.7rem;
+  }
+}
 @media (max-width: 780px) {
   .lane-label.bid {
     width: 280px;
   }
 }
-
+@media (max-width: 710px) {
+  .btn-procedure3{
+    font-size: 0.6rem;
+  }
+}
 @media (max-width: 700px) {
   /* Conteneur scrollable horizontalement */
   .main {
@@ -2505,5 +2668,20 @@ tfoot .real { color: var(--red); }
   .lifecycle {
     min-width: 700px;   /* 2 × 300px (min-width gate-wrapper) + gaps + padding */
     width: 100%;
+  }
+}
+@media (max-width: 685px) {
+  .btn-procedure--child {
+    font-size: 0.6rem;
+  }
+}
+@media (max-width: 625px) {
+  .btn-procedure {
+    font-size: 0.6rem;
+  }
+}
+@media (max-width: 575px) {
+  .btn-procedure--child {
+    font-size: 0.5rem;
   }
 }
