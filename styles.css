@@ -87,6 +87,17 @@ button {
   text-transform: uppercase;
 }
 
+.header-title {
+  background: var(--blue-dark);
+  color: var(--white);
+  padding: 18px 32px 14px;
+  border-bottom: 4px solid var(--orange-accent);
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  min-width: 672px;
+}
+
 .page-header .sub {
   font-size: 1.05rem;
   font-weight: 400;
