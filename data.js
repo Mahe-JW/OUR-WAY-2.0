@@ -50,6 +50,28 @@ const Home_procedures2 = [
   { name: "Procedure Worksharing Mgt",         link: GATE_LINK },
 ];
 
+const SE_procedures = [
+  { name: "Procedure Corporate Governance",        link: GATE_LINK, keyDoc: [{ label: "Business Review (.ppt)", link: GATE_LINK }, {label: "Delegation of Authority Matrix", link: GATE_LINK} ] },
+  { name: "Procedure Group Risks Management",      link: GATE_LINK, keyDoc: [{ label: "Group Risks & Opportunities Register", link: GATE_LINK }] },
+];
+
+const SE_procedures2 = [
+  { name: "Politics - Crisis Management", link: GATE_LINK },
+
+];
+
+const PS_procedures = [
+  { name: "Procedure Human Resources Administration​", link: GATE_LINK },
+  { name: "Procedure Learning & Developement Management​", link: GATE_LINK },
+  { name: "Procedure Talent Management​​", link: GATE_LINK },
+];
+
+const BMO_procedures = [
+  { name: "Procedure Operational Management​", link: GATE_LINK },
+  { name: "Procedure Procurement to Pay Management​​", link: GATE_LINK },
+  { name: "Procedure Excellence in Operations​", link: GATE_LINK },
+];
+
 // ─── Procedures ───────────────────────────────────────────────────────────────
 
 const Procedure_link = [
